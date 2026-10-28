@@ -1,0 +1,169 @@
+/* ==========================================================
+   DIMA Accounting - Organizational Theme (Dark Navy / Gold)
+   رنگ اصلی: سرمه‌ای تیره #1a3a52   |   رنگ تاکیدی: طلایی #d4af37
+   ========================================================== */
+
+* {
+    font-family: "Vazir", "Tahoma", sans-serif;
+    font-size: 13px;
+}
+
+QWidget {
+    background-color: #f4f6f8;
+    color: #1a1a1a;
+}
+
+/* ---------------- پنجره اصلی و نوار عنوان ---------------- */
+QMainWindow {
+    background-color: #f4f6f8;
+}
+
+#sideMenu {
+    background-color: #1a3a52;
+}
+
+#sideMenu QPushButton {
+    background-color: transparent;
+    color: #ffffff;
+    text-align: right;
+    padding: 0px;
+    border: none;
+    border-radius: 0px;
+}
+
+#sideMenu QPushButton:hover {
+    background-color: #24506e;
+}
+
+#sideMenu QPushButton:checked {
+    background-color: #d4af37;
+    color: #1a3a52;
+    font-weight: bold;
+}
+
+/* ---------------- دکمه‌ها ---------------- */
+QPushButton {
+    background-color: #1a3a52;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 8px 16px;
+    border: 1px solid #1a3a52;
+}
+
+QPushButton:hover {
+    background-color: #24506e;
+}
+
+QPushButton:pressed {
+    background-color: #12293b;
+}
+
+QPushButton#goldButton, QPushButton#saveButton {
+    background-color: #d4af37;
+    color: #1a3a52;
+    border: 1px solid #b8952c;
+    font-weight: bold;
+}
+
+QPushButton#goldButton:hover, QPushButton#saveButton:hover {
+    background-color: #e0c04f;
+}
+
+QPushButton#dangerButton {
+    background-color: #b23b3b;
+    border: 1px solid #8f2f2f;
+}
+
+/* ---------------- فیلدهای ورودی ---------------- */
+QLineEdit, QComboBox, QDateEdit, QSpinBox, QDoubleSpinBox, QTextEdit {
+    background-color: #ffffff;
+    border: 1px solid #c3ccd4;
+    border-radius: 5px;
+    padding: 6px;
+    color: #1a1a1a;
+}
+
+QLineEdit:focus, QComboBox:focus {
+    border: 1px solid #d4af37;
+}
+
+/* ---------------- جداول ---------------- */
+QTableWidget {
+    background-color: #ffffff;
+    gridline-color: #e0e4e8;
+    border: 1px solid #d5dbe0;
+    selection-background-color: #d4af37;
+    selection-color: #1a3a52;
+}
+
+QHeaderView::section {
+    background-color: #1a3a52;
+    color: #ffffff;
+    padding: 6px;
+    border: none;
+    font-weight: bold;
+}
+
+QTableWidget::item {
+    padding: 4px;
+}
+
+/* ---------------- برچسب‌ها و عناوین ---------------- */
+QLabel#pageTitle {
+    color: #1a3a52;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+QLabel#statusBadge {
+    color: #d4af37;
+    font-weight: bold;
+}
+
+/* ---------------- نوار وضعیت و منو ---------------- */
+QStatusBar {
+    background-color: #1a3a52;
+    color: #ffffff;
+}
+
+QMenuBar {
+    background-color: #1a3a52;
+    color: #ffffff;
+}
+
+QMenuBar::item:selected {
+    background-color: #d4af37;
+    color: #1a3a52;
+}
+
+/* ---------------- اسکرول‌بار ---------------- */
+QScrollBar:vertical {
+    background: #f4f6f8;
+    width: 10px;
+}
+
+QScrollBar::handle:vertical {
+    background: #1a3a52;
+    border-radius: 5px;
+    min-height: 30px;
+}
+
+/* ---------------- تب‌ها ---------------- */
+QTabWidget::pane {
+    border: 1px solid #d5dbe0;
+    background-color: #ffffff;
+}
+
+QTabBar::tab {
+    background-color: #e7ebee;
+    color: #1a3a52;
+    padding: 8px 18px;
+    border: 1px solid #d5dbe0;
+    border-bottom: none;
+}
+
+QTabBar::tab:selected {
+    background-color: #1a3a52;
+    color: #ffffff;
+    font-weight: bold;
+}
