@@ -1,167 +1,202 @@
-# سیستم حسابداری DIMA
+# DIMA Accounting
 
-نرم‌افزار حسابداری ماژولار با PyQt6 و SQLite، دارای رابط کاربری کامل فارسی (RTL).
+**A multilingual desktop accounting application built with Python, PyQt6, and SQLite.**
 
-## ۱. ساختار پروژه
+DIMA Accounting is a Windows-oriented desktop application designed to bring common accounting and business workflows into one interface. The project uses a modular structure, a SQLite database, and a Persian right-to-left (RTL) user interface.
 
+> **Project status:** This README describes the current project structure and documented functionality. Some integrations may require additional implementation or configuration. See the notes below before using the application with real business data.
+
+## Highlights
+
+- **Multilingual interface:** The project includes a language/internationalization module. Check the application's language settings and translation resources to confirm which languages are available in a given build.
+- **Persian RTL interface:** Designed to support Persian text and right-to-left layouts.
+- **Desktop application:** Built with PyQt6 for a native desktop-style user experience on Windows.
+- **Local database:** Uses SQLite for application data.
+- **Modular design:** Accounting features are separated into core logic, business modules, and UI pages.
+- **Authentication:** Includes a login screen and password hashing.
+- **Windows packaging:** Includes a PyInstaller specification and an Inno Setup installer script.
+
+## Main features
+
+The codebase is organized around the following areas:
+
+| Area | Purpose |
+|---|---|
+| Dashboard | Main application overview |
+| Sales | Sales workflow |
+| Purchase | Purchase workflow |
+| Invoices | Invoice management |
+| Inventory | Inventory-related operations |
+| Customers | Customer records |
+| Accounting | Accounting functions |
+| Checks | Check management |
+| Treasury | Cash and treasury operations |
+| Barcode scanner | Barcode-scanning support |
+| Application settings | Application configuration |
+| SMS providers | SMS provider configuration and related functionality |
+| Modian | Modian-related module; see integration note below |
+
+The exact workflows available in each screen depend on the current implementation and configuration.
+
+## Technology stack
+
+- **Python**
+- **PyQt6** — desktop user interface
+- **SQLite** — local database
+- **jdatetime** — Jalali date support
+- **qtawesome** — optional UI icons
+- **pyserial** — serial-port support for compatible devices
+- **requests** — HTTP requests for integrations
+- **PyInstaller** — Windows executable packaging
+- **Inno Setup** — Windows installer creation
+
+## Screenshots
+
+Screenshots can be added here to show the dashboard, invoice screens, and language settings.
+
+```text
+docs/
+└── screenshots/
+    ├── dashboard.png
+    ├── invoices.png
+    └── language-settings.png
 ```
-dima_accounting/
-├── main.py                  # نقطه ورود و مدیریت چرخه حیات برنامه
-├── requirements.txt
-├── core/
-│   ├── db_manager.py         # Singleton اتصال SQLite + اسکیمای کامل + CRUD + تراکنش‌ها
-│   └── auth.py                # لاگین، هش رمز عبور (PBKDF2)، سطوح دسترسی (۳ نقش)
-├── ui/
-│   ├── style.qss              # تم سازمانی سرمه‌ای (#1a3a52) / طلایی (#d4af37)
-│   ├── login_window.py        # صفحه ورود اجباری
-│   ├── main_window.py         # پنجره اصلی + منوی کناری + ناوبری صفحات
-│   ├── dashboard_page.py      # داشبورد خلاصه وضعیت
-│   ├── sales_page.py          # فاکتور فروش سریع/عمده (بارکد، Hotkey، تخفیف، سطح قیمت)
-│   ├── purchase_page.py       # فاکتور خرید پیشرفته (هدیه، تخفیف، مالیات/عوارض)
-│   ├── inventory_page.py      # مدیریت کالا (۴ قیمت، گروه‌بندی) - فقط ادمین/حسابدار
-│   ├── treasury_page.py       # خزانه‌داری (دریافت/پرداخت)
-│   ├── checks_page.py         # مدیریت چک‌های دریافتی/پرداختی
-│   ├── accounting_page.py     # حسابداری کامل - فقط ادمین/حسابدار
-│   └── settings_page.py       # مدیریت کاربران و صندوق‌ها - فقط ادمین
-└── modules/
-    ├── sales.py                # منطق تجاری فروش
-    ├── purchase.py             # منطق تجاری خرید
-    ├── inventory.py            # منطق تجاری انبار، قیمت‌ها و گروه‌بندی
-    ├── treasury.py             # منطق تجاری خزانه
-    ├── accounting.py           # سرفصل حسابها، صدور سند، دفتر کل، تراز، سود و زیان
-    ├── checks.py                # مدیریت چک‌ها
-    └── modian.py                # آماده‌سازی داده برای سامانه مودیان (بدون API واقعی)
+
+Replace this example with real screenshots before publishing them.
+
+## Download and install on Windows
+
+If you have a released installer, download it from the project's **GitHub Releases** page and run it on Windows.
+
+1. Download the installer from the release assets.
+2. Run the installer.
+3. Follow the setup instructions.
+4. Launch DIMA Accounting from the installed application shortcut.
+
+**Note:** A setup executable is not included in the source repository by default. Publish it as a GitHub Release asset if you want users to download it directly. Test the installer on a clean Windows account or machine before distributing it.
+
+## Run from source
+
+### Requirements
+
+- Windows
+- A supported Python version
+- Git (optional, for cloning the repository)
+
+### 1. Clone the repository
+
+```powershell
+git clone https://github.com/OmidDevAi/DIMA-Accounting.git
+cd DIMA-Accounting
 ```
 
-## ۲. دستورالعمل نصب
+Replace the repository URL above if the repository uses a different name.
 
-نیازمندی: Python 3.12 یا بالاتر.
+### 2. Create and activate a virtual environment
 
-```bash
-# ایجاد محیط مجازی (اختیاری ولی توصیه‌شده)
-python3 -m venv venv
-source venv/bin/activate      # در ویندوز: venv\Scripts\activate
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-# نصب وابستگی‌ها
+If PowerShell blocks activation, review your local PowerShell execution policy or activate the environment using another supported method.
+
+### 3. Install dependencies
+
+```powershell
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-# یا به صورت مستقیم:
-pip install PyQt6 jdatetime
 ```
 
-## ۲.۱ نقش‌های کاربری و سطوح قیمت (نسخه ارتقایافته)
+### 4. Start the application
 
-سیستم اکنون **سه نقش** کاربری دارد:
-
-| نقش | دسترسی به «انبار و کالا» (قیمت‌ها، گروه‌بندی) | دسترسی به «تنظیمات» (کاربران/صندوق‌ها) |
-|---|---|---|
-| مدیر فروشگاه (`admin`) | ✅ | ✅ |
-| حسابدار (`accountant`) | ✅ | ❌ |
-| صندوق‌دار (`cashier`) | ❌ (اصلاً در منو نمایش داده نمی‌شود) | ❌ |
-
-هر کالا اکنون **۴ سطح قیمت فروش** دارد که عنوان هرکدام از صفحه‌ی «انبار و کالا» توسط
-مدیر/حسابدار قابل تغییر است (پیش‌فرض: «قیمت نقدی»، «قیمت نسیه»، «قیمت قدیم»، «قیمت جدید»؛
-مثلاً می‌توان یکی را به «قیمت عمده» تغییر نام داد).
-
-در **فاکتور فروش سریع**، صندوق‌دار برای هر ردیف کالا یک کمبوباکس می‌بیند که همان ۴ عنوان
-و مقدار هر کدام را نشان می‌دهد؛ او فقط می‌تواند از بین این ۴ مقدار انتخاب کند و **اجازه‌ی
-تغییر یا وارد کردن دستی قیمت را ندارد** — تغییر خودِ اعداد قیمت فقط از صفحه‌ی انبار توسط
-مدیر/حسابدار امکان‌پذیر است.
-
-## ۲.۲ ماژول‌های جدید این نسخه (بر اساس تصاویر نرم‌افزار مرجع)
-
-### حسابداری کامل (`ui/accounting_page.py`, `modules/accounting.py`)
-فقط برای **مدیر فروشگاه** و **حسابدار** در دسترس است. شامل تب‌های:
-- **سرفصل حسابها**: افزودن حساب جدید با کد/نام/نوع (دارایی، بدهی، سرمایه، درآمد، هزینه)
-- **صدور سند**: ثبت سند حسابداری دستی؛ سیستم قبل از ثبت بررسی می‌کند جمع بدهکار = جمع بستانکار
-- **دفتر کل**: گردش کامل هر حساب با مانده لحظه‌ای
-- **تراز آزمایشی**: جمع بدهکار/بستانکار همه حسابها
-- **سود و زیان**: مقایسه درآمد و هزینه در یک بازه تاریخی
-- **ترازنامه**: مانده حسابهای دارایی/بدهی/سرمایه
-
-**صدور خودکار سند**: هر فاکتور فروش، فاکتور خرید، و تراکنش خزانه به‌صورت خودکار
-سند حسابداری متناظر خود را (طبق نگاشت حساب‌های پیش‌فرض در جدول `account_mappings`)
-صادر می‌کند. اگر نگاشت لازم تعریف نشده باشد، صدور خودکار بی‌صدا رد می‌شود و مانع
-ثبت فاکتور/تراکنش نمی‌شود.
-
-### چک‌ها (`ui/checks_page.py`, `modules/checks.py`)
-ثبت چک دریافتی (از مشتری) یا پرداختی (به تامین‌کننده)، با وضعیت «در انتظار
-وصول»، «وصول‌شده» یا «برگشت‌خورده». وصول چک به‌صورت خودکار در خزانه (دریافت/پرداخت
-وجه) و سند حسابداری ثبت می‌شود.
-
-### تخفیف، مالیات و عوارض در فاکتورها
-هم فاکتور خرید و هم فاکتور فروش اکنون از موارد زیر پشتیبانی می‌کنند:
-- تخفیف هر ردیف (ریالی یا درصدی) + تخفیف کل فاکتور
-- مالیات بر ارزش افزوده هر ردیف (چک‌باکس + درصد دلخواه)
-- عوارض کل فاکتور (فقط در خرید، قابل گسترش به فروش)
-- **مقدار هدیه** در فاکتور خرید: کالای رایگانی که تامین‌کننده همراه سفارش می‌دهد؛
-  به موجودی اضافه می‌شود ولی در مبلغ فاکتور محاسبه نمی‌شود.
-- **فاکتور عمده**: هم در خرید هم در فروش با یک چک‌باکس/Hotkey (F11) قابل‌فعال‌سازی
-  است و شماره فاکتور با پیشوند `WSL-` به‌جای `SAL-` تولید می‌شود.
-
-### Hotkey های فاکتور فروش سریع (`ui/sales_page.py`)
-مطابق نرم‌افزارهای صندوق رایج:
-- `F2` = ثبت فاکتور نقدی
-- `F6` = ثبت فاکتور کارتی
-- `F11` = تغییر حالت فاکتور عادی/عمده
-- `Delete` یا `F9` = حذف ردیف انتخاب‌شده از سبد فروش
-
-### سامانه مودیان (`modules/modian.py`) — فقط ساختار داده
-⚠️ این بخش **اتصال واقعی به API سازمان امور مالیاتی را پیاده نمی‌کند** (چنین
-اتصالی نیازمند گواهی دیجیتال ثبت‌شده و توکن API رسمی است که خارج از حیطه‌ی این
-پروژه است). آنچه پیاده شده:
-- تبدیل هر فاکتور فروش به ساختار JSON استاندارد (شماره فاکتور، اقلام، مالیات، خریدار)
-- ذخیره‌ی این ساختار در جدول `modian_invoices` با وضعیت `ready` (آماده ارسال)
-- تب مخصوص در صفحه‌ی حسابداری برای مشاهده‌ی فاکتورهای آماده‌نشده و پیش‌نمایش JSON
-- متد `send_to_modian()` عمداً `NotImplementedError` می‌دهد؛ برای فعال‌سازی واقعی
-  باید گواهی دیجیتال، شناسه مالیاتی، و آدرس/توکن API واقعی سازمان امور مالیاتی
-  در تنظیمات پروژه اضافه و این متد تکمیل شود.
-
-## ۳. اجرای برنامه
-
-```bash
+```powershell
 python main.py
 ```
 
-در **اولین اجرا**، فایل دیتابیس `dima_accounting.db` به صورت خودکار در کنار `main.py`
-ساخته می‌شود، تمام جداول ایجاد می‌شوند و داده‌های اولیه (Seed) درج می‌گردد:
+If the application does not start, check that all dependencies are installed and review the terminal output for the specific error.
 
-- یک صندوق پیش‌فرض به نام «صندوق اصلی»
-- یک کاربر ادمین:
-  - **نام کاربری:** `admin`
-  - **رمز عبور:** `admin123`
+## Build a Windows executable
 
-> ⚠️ توصیه می‌شود بلافاصله پس از اولین ورود، رمز عبور ادمین را از طریق دیتابیس یا
-> با افزودن قابلیت «تغییر رمز» تغییر دهید (در نسخه فعلی UI تغییر رمز پیاده‌سازی نشده
-> و باید در تکرارهای بعدی افزوده شود).
+The repository includes `DIMA_Accounting.spec` for PyInstaller.
 
-## ۴. نکات معماری مهم
+Install the dependencies first, then install PyInstaller if it is not already available:
 
-- **Repository Pattern:** تمام کوئری‌های SQL درون `DBManager` و کلاس‌های `modules/*`
-  قرار دارند؛ هیچ ویجت UI مستقیماً SQL اجرا نمی‌کند.
-- **تراکنش اتمیک:** ثبت فاکتور خرید/فروش با `db.transaction()` (BEGIN/COMMIT/ROLLBACK)
-  انجام می‌شود تا هدر فاکتور، اقلام و به‌روزرسانی موجودی همیشه هم‌زمان ثبت یا لغو شوند.
-- **ایزولاسیون صندوق:** `AuthManager.get_accessible_box_id()` قانون دسترسی را پیاده‌سازی
-  می‌کند: کاربر صندوق‌دار فقط `box_id` خودش، ادمین `None` (یعنی دسترسی کامل) دریافت می‌کند.
-  این مقدار باید در فیلتر تمام کوئری‌های لیست فاکتورها/تراکنش‌ها استفاده شود.
-- **هش رمز عبور:** با `PBKDF2-HMAC-SHA256` و Salt تصادفی ۱۶ بایتی و ۱۰۰٬۰۰۰ تکرار.
-- **Signals & Slots:** ارتباط بین `LoginWindow` و برنامه اصلی از طریق سیگنال
-  `login_success`، و خروج از حساب از طریق سیگنال `logged_out` در `MainWindow` انجام
-  می‌شود؛ هیچ ارجاع مستقیم و چرخه‌ای بین فایل‌های UI وجود ندارد.
+```powershell
+pip install pyinstaller
+pyinstaller DIMA_Accounting.spec
+```
 
-## ۵. تست‌های انجام‌شده
+Review the output and the paths referenced by the spec file. The resulting build location depends on the PyInstaller configuration.
 
-منطق هسته (ایجاد اسکیما، Seed، لاگین، ثبت فاکتور خرید و فروش، به‌روزرسانی موجودی)
-به صورت مستقل از PyQt6 اجرا و تأیید شده است (خروجی: ایجاد جداول، ورود موفق ادمین،
-افزایش موجودی پس از خرید، کاهش موجودی پس از فروش — همگی صحیح).
-لایه‌ی PyQt6 (پنجره‌ها) از نظر سینتکس با `py_compile` بررسی و بدون خطا کامپایل شده
-است؛ در محیط فعلی امکان اجرای گرافیکی PyQt6 به دلیل نبود دسترسی شبکه برای نصب
-پکیج وجود نداشت — لطفاً پس از نصب `PyQt6` طبق بخش ۲، برنامه را روی سیستم خودتان
-اجرا و در صورت مشاهده‌ی هرگونه رفتار غیرمنتظره اطلاع دهید تا اصلاح شود.
+## Build the Windows installer
 
-## ۶. توسعه‌های پیشنهادی بعدی
+The repository includes `installer.iss`, intended for use with **Inno Setup**.
 
-- افزودن مدیریت اشخاص (مشتریان/تامین‌کنندگان) در UI (جداول `parties` از قبل آماده است)
-- افزودن گزارش‌گیری (سود/زیان، کاردکس کالا، صورت‌حساب اشخاص)
-- افزودن قابلیت تغییر رمز عبور و ویرایش/غیرفعال‌سازی کاربران
-- افزودن پشتیبان‌گیری خودکار از دیتابیس (Backup/Restore)
-- تبدیل تاریخ‌های میلادی به شمسی با `jdatetime` در تمام فرم‌ها (پکیج در `requirements.txt` گنجانده شده)
+1. Install Inno Setup on your Windows machine.
+2. Open `installer.iss` in the Inno Setup Compiler.
+3. Check that the source and output paths match your build.
+4. Compile the installer.
+5. Test the installer on a clean Windows environment.
+
+## Project structure
+
+```text
+DIMA-Accounting/
+├── core/                    # Core services, database, authentication, i18n
+├── modules/                 # Business logic and feature modules
+├── ui/                      # PyQt6 windows, pages, and styles
+├── main.py                  # Application entry point
+├── requirements.txt         # Python dependencies
+├── DIMA_Accounting.spec     # PyInstaller build configuration
+├── installer.iss            # Inno Setup installer script
+├── DIMA_Icon_2_Minimal.png  # Application icon
+├── .gitignore
+└── README.md
+```
+
+## Data and security
+
+- The application uses a local SQLite database.
+- Back up business data regularly and store backups securely.
+- Do not commit database files, credentials, private keys, or customer information to GitHub.
+- Use a strong, unique password before using the application with real data.
+- Treat the default demo login (`admin` / `admin123`) as insecure. Change it before any real-world use if the application provides that option. Do not expose a live installation using the default credentials.
+- Test backup and recovery procedures before relying on the software for business-critical records.
+
+## Integration notes
+
+- **Modian:** The current project documentation/code indicates that the real Modian API submission is not implemented yet. Do not assume that live submission is available.
+- **SMS and device support:** Availability depends on the selected provider, hardware, configuration, and the current implementation.
+- **Language availability:** The project contains an internationalization module. List specific languages only after verifying the language resources and testing the language selector in the released build.
+
+## Contributing
+
+Contributions, bug reports, and suggestions are welcome.
+
+When reporting a bug, include:
+- Windows version
+- Python version (when running from source)
+- Steps to reproduce the issue
+- The exact error message, if one appears
+- Screenshots with personal or business information removed
+
+## Roadmap ideas
+
+Potential future improvements include:
+- Completing and testing all language translations
+- Adding screenshots and a short demo
+- Expanding automated tests
+- Documenting backup and restore procedures
+- Completing and testing external integrations
+- Publishing versioned Windows releases
+
+These are possible improvements, not promises about current functionality.
+
+## License
+
+No license has been specified in this repository yet. Until a license is added, do not assume that the code is open for reuse, redistribution, or commercial use. Choose and add a license before inviting others to reuse the project.
+
+---
+
+**DIMA Accounting** — a modular desktop accounting project built with Python.
