@@ -31,7 +31,7 @@ DIMA Accounting is a Windows desktop project for common accounting and business 
 **Latest Windows release: [DIMA Accounting v1.0.0](https://github.com/OmidDevAi/DIMA-Accounting/releases/tag/v1.0.0)**
 
 1. Open the [Releases page](https://github.com/OmidDevAi/DIMA-Accounting/releases).
-2. Download `DIMA_Accounting_Setup.exe) from the release assets.
+2. Download `DIMA_Accounting_Setup.exe` from the release assets.
 3. Run the installer on Windows 10 or Windows 11.
 4. Follow the setup instructions and launch the application.
 
