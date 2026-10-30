@@ -1,24 +1,54 @@
 # DIMA Accounting
 
-**A multilingual desktop accounting application built with Python, PyQt6, and SQLite.**
+<p align="center">
+  <img src="DIMA_Icon_2_Minimal.png" alt="DIMA Accounting icon" width="120">
+</p>
 
-DIMA Accounting is a Windows-oriented desktop application designed to bring common accounting and business workflows into one interface. The project uses a modular structure, a SQLite database, and a Persian right-to-left (RTL) user interface.
+<p align="center">
+  <strong>A Persian-first desktop accounting application built with Python, PyQt6, and SQLite.</strong>
+</p>
 
-> **Project status:** This README describes the current project structure and documented functionality. Some integrations may require additional implementation or configuration. See the notes below before using the application with real business data.
+<p align="center">
+  <a href="https://github.com/OmidDevAi/DIMA-Accounting/releases/latest">
+    <img src="https://img.shields.io/github/v/release/OmidDevAi/DIMA-Accounting?label=Latest%20release" alt="Latest release">
+  </a>
+  <img src="https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue" alt="Windows 10 and 11">
+  <img src="https://img.shields.io/badge/Python-PyQt6-yellow" alt="Python and PyQt6">
+</p>
+
+<p align="center">
+  <a href="https://github.com/OmidDevAi/DIMA-Accounting/releases/latest"><strong>Download for Windows</strong></a>
+  ·
+  <a href="https://github.com/OmidDevAi/DIMA-Accounting/issues">Report a problem</a>
+</p>
+
+DIMA Accounting is a Windows desktop project for common accounting and business workflows. It has a Persian right-to-left (RTL) user interface, a modular Python codebase, and a local SQLite database.
+
+> **Project status:** Version 1.0.0 is the first public Windows release. The project is still evolving. Some integrations and workflows need further implementation, configuration, or testing. Read the security and integration notes before using it with real business data.
+
+## Download
+
+**Latest Windows release: [DIMA Accounting v1.0.0](https://github.com/OmidDevAi/DIMA-Accounting/releases/tag/v1.0.0)**
+
+1. Open the [Releases page](https://github.com/OmidDevAi/DIMA-Accounting/releases).
+2. Download `DIMA_Accounting_Setup.exe) from the release assets.
+3. Run the installer on Windows 10 or Windows 11.
+4. Follow the setup instructions and launch the application.
+
+The installer is distributed as a GitHub Release asset. It is not stored in the source-code repository.
 
 ## Highlights
 
-- **Multilingual interface:** The project includes a language/internationalization module. Check the application's language settings and translation resources to confirm which languages are available in a given build.
-- **Persian RTL interface:** Designed to support Persian text and right-to-left layouts.
-- **Desktop application:** Built with PyQt6 for a native desktop-style user experience on Windows.
-- **Local database:** Uses SQLite for application data.
-- **Modular design:** Accounting features are separated into core logic, business modules, and UI pages.
-- **Authentication:** Includes a login screen and password hashing.
-- **Windows packaging:** Includes a PyInstaller specification and an Inno Setup installer script.
+- Persian right-to-left (RTL) user interface.
+- Desktop interface built with PyQt6.
+- Local SQLite database.
+- Modular structure separating core services, business modules, and UI.
+- Login screen and password hashing.
+- Windows packaging configuration using PyInstaller and Inno Setup.
 
-## Main features
+## Main areas
 
-The codebase is organized around the following areas:
+The codebase is organized around these areas. The exact workflows available in each screen depend on the current implementation and configuration.
 
 | Area | Purpose |
 |---|---|
@@ -34,13 +64,11 @@ The codebase is organized around the following areas:
 | Barcode scanner | Barcode-scanning support |
 | Application settings | Application configuration |
 | SMS providers | SMS provider configuration and related functionality |
-| Modian | Modian-related module; see integration note below |
-
-The exact workflows available in each screen depend on the current implementation and configuration.
+| Modian | Modian-related module; see integration notes |
 
 ## Technology stack
 
-- **Python**
+- **Python** — application language
 - **PyQt6** — desktop user interface
 - **SQLite** — local database
 - **jdatetime** — Jalali date support
@@ -52,28 +80,14 @@ The exact workflows available in each screen depend on the current implementatio
 
 ## Screenshots
 
-Screenshots can be added here to show the dashboard, invoice screens, and language settings.
+Application screenshots will be added here. The repository currently includes the application icon, but not verified screenshots of the running application.
 
-```text
-docs/
-└── screenshots/
-    ├── dashboard.png
-    ├── invoices.png
-    └── language-settings.png
-```
+Suggested screenshots:
+- Main dashboard
+- Sales or invoice screen
+- Inventory or customer screen
 
-Replace this example with real screenshots before publishing them.
-
-## Download and install on Windows
-
-If you have a released installer, download it from the project's **GitHub Releases** page and run it on Windows.
-
-1. Download the installer from the release assets.
-2. Run the installer.
-3. Follow the setup instructions.
-4. Launch DIMA Accounting from the installed application shortcut.
-
-**Note:** A setup executable is not included in the source repository by default. Publish it as a GitHub Release asset if you want users to download it directly. Test the installer on a clean Windows account or machine before distributing it.
+If you contribute screenshots, remove or hide all real customer names, phone numbers, financial records, and other private information first.
 
 ## Run from source
 
@@ -90,16 +104,14 @@ git clone https://github.com/OmidDevAi/DIMA-Accounting.git
 cd DIMA-Accounting
 ```
 
-Replace the repository URL above if the repository uses a different name.
-
 ### 2. Create and activate a virtual environment
 
 ```powershell
 py -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\\.venv\\Scripts\\Activate.ps1
 ```
 
-If PowerShell blocks activation, review your local PowerShell execution policy or activate the environment using another supported method.
+If PowerShell blocks activation, review your local PowerShell execution policy or use another supported activation method.
 
 ### 3. Install dependencies
 
@@ -120,20 +132,18 @@ If the application does not start, check that all dependencies are installed and
 
 The repository includes `DIMA_Accounting.spec` for PyInstaller.
 
-Install the dependencies first, then install PyInstaller if it is not already available:
-
 ```powershell
 pip install pyinstaller
 pyinstaller DIMA_Accounting.spec
 ```
 
-Review the output and the paths referenced by the spec file. The resulting build location depends on the PyInstaller configuration.
+Review the output and paths referenced by the spec file. The resulting build location depends on the PyInstaller configuration.
 
 ## Build the Windows installer
 
 The repository includes `installer.iss`, intended for use with **Inno Setup**.
 
-1. Install Inno Setup on your Windows machine.
+1. Install Inno Setup.
 2. Open `installer.iss` in the Inno Setup Compiler.
 3. Check that the source and output paths match your build.
 4. Compile the installer.
@@ -160,15 +170,14 @@ DIMA-Accounting/
 - The application uses a local SQLite database.
 - Back up business data regularly and store backups securely.
 - Do not commit database files, credentials, private keys, or customer information to GitHub.
-- Use a strong, unique password before using the application with real data.
-- Treat the default demo login (`admin` / `admin123`) as insecure. Change it before any real-world use if the application provides that option. Do not expose a live installation using the default credentials.
+- The documented default demo login (`admin` / `admin123`) is insecure. Change it before any real-world use, and do not expose an installation using the default credentials.
 - Test backup and recovery procedures before relying on the software for business-critical records.
 
 ## Integration notes
 
-- **Modian:** The current project documentation/code indicates that the real Modian API submission is not implemented yet. Do not assume that live submission is available.
+- **Modian:** Live submission to the Modian system is not implemented yet. Do not assume that live submission is available.
 - **SMS and device support:** Availability depends on the selected provider, hardware, configuration, and the current implementation.
-- **Language availability:** The project contains an internationalization module. List specific languages only after verifying the language resources and testing the language selector in the released build.
+- **Language availability:** The project contains an internationalization module. Specific supported languages should be confirmed in the released build before being advertised.
 
 ## Contributing
 
@@ -181,22 +190,20 @@ When reporting a bug, include:
 - The exact error message, if one appears
 - Screenshots with personal or business information removed
 
-## Roadmap ideas
+## Roadmap
 
-Potential future improvements include:
-- Completing and testing all language translations
-- Adding screenshots and a short demo
-- Expanding automated tests
-- Documenting backup and restore procedures
-- Completing and testing external integrations
-- Publishing versioned Windows releases
+- Add screenshots and a short demo.
+- Expand automated tests.
+- Document backup and restore procedures.
+- Complete and test external integrations.
+- Improve language translations and document supported languages.
 
 These are possible improvements, not promises about current functionality.
 
 ## License
 
-No license has been specified in this repository yet. Until a license is added, do not assume that the code is open for reuse, redistribution, or commercial use. Choose and add a license before inviting others to reuse the project.
+No license has been specified in this repository yet. Until a license is added, do not assume that the code is open for reuse, redistribution, or commercial use.
 
 ---
 
-**DIMA Accounting** — a modular desktop accounting project built with Python.
+**DIMA Accounting** — a Persian-first desktop accounting project built with Python.
