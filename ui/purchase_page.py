@@ -241,7 +241,8 @@ class PurchasePage(QWidget):
         header = self.table.horizontalHeader()
         for col in range(len(SUMMARY_COLUMN_KEYS) - 1):
             header.setSectionResizeMode(col, QHeaderView.ResizeMode.ResizeToContents)
-        header.setSectionResizeMode(len(SUMMARY_COLUMN_KEYS) - 1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(len(SUMMARY_COLUMN_KEYS) - 1, QHeaderView.ResizeMode.ResizeToContents)
         layout.addWidget(self.table)
 
         totals_row = QHBoxLayout()

@@ -155,7 +155,10 @@ class CustomerListTab(QWidget):
         self.invoice_table = QTableWidget()
         self.invoice_table.setColumnCount(4)
         self.invoice_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        self.invoice_table.horizontalHeader().setStretchLastSection(True)
+        invoice_header = self.invoice_table.horizontalHeader()
+        for col in range(3):
+            invoice_header.setSectionResizeMode(col, QHeaderView.ResizeMode.ResizeToContents)
+        invoice_header.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
         right_panel.addWidget(self.invoice_table)
 
         self.btn_sms_one = QPushButton()
