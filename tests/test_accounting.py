@@ -149,10 +149,6 @@ def test_general_ledger_running_balance(db, admin):
     assert [row["balance"] for row in ledger] == [1000, 600]
 
 
-@pytest.mark.xfail(
-    reason="known bug: entry numbers are counted for today only, so two backdated entries collide on the UNIQUE number",
-    strict=False,
-)
 def test_backdated_entries_get_unique_numbers(db, admin):
     accounts = _ids(db)
     accounting = AccountingModule()
@@ -164,7 +160,8 @@ def test_backdated_entries_get_unique_numbers(db, admin):
     _, first = accounting.create_journal_entry("سند اول", lines, admin["id"], date="20260101")
     _, second = accounting.create_journal_entry("سند دوم", lines, admin["id"], date="20260102")
 
-    assert first != second
+    assert first == "JRN-20260101-0001"
+    assert second == "JRN-20260102-0001"
 
 
 def test_auto_posted_sale_debits_cash_and_credits_revenue(db, admin, product):
@@ -210,10 +207,6 @@ def test_account_mapping_can_be_changed(db, admin):
     assert accounting.get_account_mapping("cash") == accounts["1100"]
 
 
-@pytest.mark.xfail(
-    reason="known gap: sales never post cost of goods sold, so the inventory account is never credited",
-    strict=False,
-)
 def test_sale_posts_cost_of_goods_sold(db, admin, product):
     invoice_id, _, total = SalesModule().create_sale_invoice(
         None, admin["id"], admin["box_id"], "cash",
@@ -232,10 +225,6 @@ def test_sale_posts_cost_of_goods_sold(db, admin, product):
     assert line["credit"] == pytest.approx(2 * product["buy_price"])
 
 
-@pytest.mark.xfail(
-    reason="known gap: collected VAT is posted to the sales revenue account instead of the VAT payable account",
-    strict=False,
-)
 def test_sale_posts_vat_to_payable_account(db, admin, product):
     invoice_id, _, total = SalesModule().create_sale_invoice(
         None, admin["id"], admin["box_id"], "cash",

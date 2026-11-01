@@ -24,12 +24,17 @@ class SalesModule:
     def generate_invoice_number(self, is_wholesale=False):
         prefix = "WSL" if is_wholesale else "SAL"
         today = datetime.date.today().strftime("%Y%m%d")
+        number_prefix = f"{prefix}-{today}-"
+        # آخرین شماره‌ی صادرشده را مبنا می‌گیریم (نه تعداد ردیف‌ها)، تا حذف
+        # یک فاکتور باعث دوباره‌استفاده‌شدن شماره و تداخل UNIQUE نشود.
         row = self.db.fetch_one(
-            "SELECT COUNT(*) AS c FROM invoices WHERE invoice_type = 'sale' AND date LIKE ? AND is_wholesale = ?;",
-            (f"{today}%", 1 if is_wholesale else 0),
+            """SELECT MAX(CAST(substr(invoice_number, ?) AS INTEGER)) AS seq
+               FROM invoices
+               WHERE invoice_number LIKE ? AND invoice_type = 'sale' AND is_wholesale = ?;""",
+            (len(number_prefix) + 1, f"{number_prefix}%", 1 if is_wholesale else 0),
         )
-        seq = (row["c"] or 0) + 1
-        return f"{prefix}-{today}-{seq:04d}"
+        seq = (row["seq"] or 0) + 1
+        return f"{number_prefix}{seq:04d}"
 
     def find_product_by_barcode(self, barcode: str):
         """جستجوی سریع کالا با اسکنر بارکد؛ برای استفاده در فاکتور فروش سریع."""
@@ -57,6 +62,9 @@ class SalesModule:
             ۴. صدور خودکار سند حسابداری (بدهکار صندوق/حسابهای دریافتنی، بستانکار فروش کالا)
         در صورت ناکافی بودن موجودی، کل عملیات لغو (ROLLBACK) و خطا صادر می‌شود.
         """
+        if not items:
+            raise ValueError("فاکتور فروش خالی است؛ حداقل یک کالا لازم است.")
+
         invoice_number = self.generate_invoice_number(is_wholesale)
         today_str = datetime.date.today().strftime("%Y%m%d")
         subtotal_amount = 0.0

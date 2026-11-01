@@ -67,13 +67,20 @@ class AccountingModule:
     # =================================================================
     # صدور سند حسابداری (دستی یا خودکار)
     # =================================================================
-    def _generate_entry_number(self):
-        today = datetime.date.today().strftime("%Y%m%d")
+    def _generate_entry_number(self, date_str=None):
+        # شماره‌ی سند بر اساس تاریخ خودِ سند ساخته می‌شود و از آخرین شماره‌ی
+        # موجود ادامه می‌یابد؛ در غیر این صورت ثبت سند با تاریخ گذشته با
+        # شماره‌ی تکراری مواجه می‌شد.
+        date_str = date_str or datetime.date.today().strftime("%Y%m%d")
+        prefix = f"JRN-{date_str}-"
         row = self.db.fetch_one(
-            "SELECT COUNT(*) AS c FROM journal_entries WHERE date LIKE ?;", (f"{today}%",)
+            """SELECT MAX(CAST(substr(entry_number, ?) AS INTEGER)) AS seq
+               FROM journal_entries
+               WHERE entry_number LIKE ?;""",
+            (len(prefix) + 1, f"{prefix}%"),
         )
-        seq = (row["c"] or 0) + 1
-        return f"JRN-{today}-{seq:04d}"
+        seq = (row["seq"] or 0) + 1
+        return f"{prefix}{seq:04d}"
 
     def create_journal_entry(self, description, lines, user_id,
                               source_type="manual", source_id=None, date=None):
@@ -92,8 +99,8 @@ class AccountingModule:
         if total_debit == 0:
             raise ValueError("سند خالی است؛ حداقل یک ردیف با مبلغ لازم است.")
 
-        entry_number = self._generate_entry_number()
         date_str = date or datetime.date.today().strftime("%Y%m%d")
+        entry_number = self._generate_entry_number(date_str)
 
         with self.db.transaction() as cur:
             cur.execute(
@@ -123,7 +130,8 @@ class AccountingModule:
         """
         بابت فاکتور فروش:
             بدهکار: صندوق (نقدی) یا حسابهای دریافتنی (نسیه)
-            بستانکار: فروش کالا
+            بستانکار: فروش کالا (خالص بدون مالیات) + مالیات بر ارزش افزوده پرداختنی
+            بدهکار: بهای تمام‌شده کالای فروش‌رفته / بستانکار: موجودی کالا
         اگر نگاشت حساب لازم تعریف نشده باشد، این متد بی‌صدا رد می‌شود (سند صادر نمی‌شود)
         تا از خطای عملیاتی برای فروشگاه‌هایی که هنوز حسابداری را راه‌اندازی نکرده‌اند جلوگیری شود.
         """
@@ -133,12 +141,47 @@ class AccountingModule:
         if not debit_account or not credit_account:
             return None  # نگاشت حساب هنوز تنظیم نشده؛ صدور خودکار سند رد می‌شود
 
+        invoice = self.db.fetch_one(
+            "SELECT tax_amount FROM invoices WHERE id = ?;", (invoice_id,)
+        )
+        tax_amount = round(invoice["tax_amount"] or 0, 2) if invoice else 0.0
+        vat_account = self.get_account_mapping("vat_payable")
+        if not vat_account:
+            tax_amount = 0.0
+        revenue_amount = round(total_amount - tax_amount, 2)
+
+        cogs_account = self.get_account_mapping("cogs")
+        inventory_account = self.get_account_mapping("inventory")
+        cogs_amount = 0.0
+        if cogs_account and inventory_account:
+            cost_row = self.db.fetch_one(
+                """SELECT COALESCE(SUM((ii.qty_num + ii.qty_box * p.units_per_box) * p.buy_price), 0) AS cost
+                   FROM invoice_items ii
+                   JOIN products p ON p.id = ii.product_id
+                   WHERE ii.invoice_id = ?;""",
+                (invoice_id,),
+            )
+            cogs_amount = round(cost_row["cost"] or 0, 2)
+
+        description = f"بابت فاکتور فروش {invoice_number}"
         lines = [
             {"account_id": debit_account, "debit": total_amount, "credit": 0,
-             "description": f"بابت فاکتور فروش {invoice_number}"},
-            {"account_id": credit_account, "debit": 0, "credit": total_amount,
-             "description": f"بابت فاکتور فروش {invoice_number}"},
+             "description": description},
+            {"account_id": credit_account, "debit": 0, "credit": revenue_amount,
+             "description": description},
         ]
+        if tax_amount:
+            lines.append({
+                "account_id": vat_account, "debit": 0, "credit": tax_amount,
+                "description": f"مالیات بر ارزش افزوده فاکتور {invoice_number}",
+            })
+        if cogs_amount:
+            lines.extend([
+                {"account_id": cogs_account, "debit": cogs_amount, "credit": 0,
+                 "description": f"بهای تمام‌شده فاکتور {invoice_number}"},
+                {"account_id": inventory_account, "debit": 0, "credit": cogs_amount,
+                 "description": f"کاهش موجودی بابت فاکتور {invoice_number}"},
+            ])
         return self.create_journal_entry(
             f"سند خودکار فاکتور فروش {invoice_number}", lines, user_id,
             source_type="sale", source_id=invoice_id, date=date

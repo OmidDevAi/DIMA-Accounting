@@ -120,10 +120,6 @@ def test_sale_invoices_are_filtered_by_box(db, admin, product):
     assert sales.get_sale_invoices(box_id=second_box_id)[0]["box_id"] == second_box_id
 
 
-@pytest.mark.xfail(
-    reason="known bug: invoice numbers use COUNT(*)+1, so deleting an invoice makes the next number collide",
-    strict=False,
-)
 def test_invoice_numbering_survives_deleting_an_invoice(db, admin, product):
     sales = SalesModule()
     first_id, first_number, _ = sales.create_sale_invoice(
@@ -135,16 +131,16 @@ def test_invoice_numbering_survives_deleting_an_invoice(db, admin, product):
     assert (first_number, second_number) == (f"SAL-{TODAY}-0001", f"SAL-{TODAY}-0002")
 
     InvoiceModule().delete_invoice(first_id)
-    sales.create_sale_invoice(None, admin["id"], admin["box_id"], "cash", [_item(product)])
+    _, third_number, _ = sales.create_sale_invoice(
+        None, admin["id"], admin["box_id"], "cash", [_item(product)]
+    )
+    assert third_number == f"SAL-{TODAY}-0003"
 
 
-@pytest.mark.xfail(
-    reason="known bug: an empty sale is accepted (a zero-amount invoice and treasury row are created)",
-    strict=False,
-)
 def test_empty_invoice_is_rejected(db, admin):
     with pytest.raises(ValueError):
         SalesModule().create_sale_invoice(
             None, admin["id"], admin["box_id"], "cash", []
         )
     assert db.fetch_one("SELECT COUNT(*) AS c FROM invoices;")["c"] == 0
+    assert db.fetch_one("SELECT COUNT(*) AS c FROM treasury_transactions;")["c"] == 0
