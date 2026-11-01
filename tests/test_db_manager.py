@@ -88,6 +88,57 @@ def test_foreign_keys_are_enforced(db):
         )
 
 
+def test_legacy_modian_table_is_migrated_to_set_null(db):
+    db.execute(
+        """INSERT INTO invoices
+           (invoice_number, invoice_type, date, user_id, box_id, payment_type)
+           VALUES ('SAL-LEGACY-0001', 'sale', '20260101', 1, 1, 'cash');"""
+    )
+    invoice_id = db.fetch_one(
+        "SELECT id FROM invoices WHERE invoice_number = 'SAL-LEGACY-0001';"
+    )["id"]
+
+    path = db.db_path
+    db.close()
+    DBManager._instance = None
+
+    conn = sqlite3.connect(path)
+    conn.execute("PRAGMA foreign_keys = ON;")
+    conn.executescript(
+        f"""
+        DROP TABLE modian_invoices;
+        CREATE TABLE modian_invoices (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            invoice_id      INTEGER NOT NULL UNIQUE,
+            tax_id          TEXT,
+            uid             TEXT,
+            status          TEXT NOT NULL DEFAULT 'not_prepared',
+            payload_json    TEXT,
+            prepared_at     TEXT,
+            sent_at         TEXT,
+            FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
+        );
+        INSERT INTO modian_invoices (invoice_id, status)
+        VALUES ({invoice_id}, 'ready');
+        """
+    )
+    conn.commit()
+    conn.close()
+
+    migrated = DBManager(db_path=path)
+    fk = next(
+        row for row in migrated.fetch_all("PRAGMA foreign_key_list(modian_invoices);")
+        if row["from"] == "invoice_id"
+    )
+    assert fk["on_delete"] == "SET NULL"
+
+    migrated.execute("DELETE FROM invoices WHERE id = ?;", (invoice_id,))
+    record = migrated.fetch_one("SELECT * FROM modian_invoices;")
+    assert record is not None
+    assert record["invoice_id"] is None
+    migrated.close()
+
+
 def test_hash_password_is_salted_and_verifiable():
     first_hash, first_salt = DBManager.hash_password("secret")
     second_hash, second_salt = DBManager.hash_password("secret")

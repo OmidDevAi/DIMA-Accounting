@@ -73,7 +73,8 @@ class ModianModule:
             raise ValueError("فاکتور یافت نشد.")
 
         items = self.db.fetch_all(
-            """SELECT ii.*, p.name AS product_name, p.code AS product_code
+            """SELECT ii.*, p.name AS product_name, p.code AS product_code,
+                      p.units_per_box
                FROM invoice_items ii JOIN products p ON ii.product_id = p.id
                WHERE ii.invoice_id = ?;""",
             (invoice_id,),
@@ -98,7 +99,8 @@ class ModianModule:
                 {
                     "product_code": item["product_code"],
                     "product_name": item["product_name"],
-                    "quantity": item["qty_num"] + item["qty_box"],
+                    "quantity": item["qty_num"]
+                    + item["qty_box"] * (item["units_per_box"] or 1),
                     "unit_price": item["price"],
                     "tax_percent": item["tax_percent"],
                     "tax_amount": item["tax_amount"],

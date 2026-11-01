@@ -23,6 +23,24 @@ from contextlib import contextmanager
 
 DB_FILE_NAME = "dima_accounting.db"
 
+# سابقه‌ی مودیان باید بعد از حذف فاکتور باقی بماند؛ به همین دلیل رابطه با
+# invoices به‌صورت SET NULL تعریف شده تا فقط اتصال سابقه به فاکتور قطع شود
+# و خودِ سابقه از بین نرود.
+MODIAN_INVOICES_DDL = """
+CREATE TABLE IF NOT EXISTS modian_invoices (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    invoice_id      INTEGER UNIQUE,
+    tax_id          TEXT,
+    uid             TEXT,
+    status          TEXT NOT NULL DEFAULT 'not_prepared'
+                     CHECK(status IN ('not_prepared', 'ready', 'sent', 'confirmed', 'failed')),
+    payload_json    TEXT,
+    prepared_at     TEXT,
+    sent_at         TEXT,
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE SET NULL
+);
+"""
+
 
 class DBManager:
     """
@@ -60,6 +78,7 @@ class DBManager:
         self.connection = None
         self._connect()
         self._create_schema()
+        self._migrate_schema()
         self._seed_initial_data()
         self._initialized = True
 
@@ -349,20 +368,7 @@ class DBManager:
             );
             """,
             # ================= اسناد ارسال به سامانه مودیان (ساختار داده - بدون اتصال API واقعی) =================
-            """
-            CREATE TABLE IF NOT EXISTS modian_invoices (
-                id              INTEGER PRIMARY KEY AUTOINCREMENT,
-                invoice_id      INTEGER NOT NULL UNIQUE,
-                tax_id          TEXT,
-                uid             TEXT,
-                status          TEXT NOT NULL DEFAULT 'not_prepared'
-                                 CHECK(status IN ('not_prepared', 'ready', 'sent', 'confirmed', 'failed')),
-                payload_json    TEXT,
-                prepared_at     TEXT,
-                sent_at         TEXT,
-                FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
-            );
-            """,
+            MODIAN_INVOICES_DDL,
             # ---------------- تنظیمات اتصال به سامانه مودیان (لینک API و گواهی دیجیتال) ----------------
             """
             CREATE TABLE IF NOT EXISTS modian_settings (
@@ -417,6 +423,52 @@ class DBManager:
         with self.transaction() as cur:
             for stmt in schema_statements:
                 cur.execute(stmt)
+
+    # ---------------------------------------------------------------
+    # مهاجرت اسکیمای نسخه‌های قبلی
+    # ---------------------------------------------------------------
+    def _migrate_schema(self):
+        """
+        دیتابیس‌های ساخته‌شده با نسخه ۱.۰.۰ جدول modian_invoices را با
+        ON DELETE CASCADE و invoice_id NOT NULL داشتند؛ در نتیجه حذف فاکتور
+        سابقه مودیان را هم پاک می‌کرد. اینجا جدول را بازسازی می‌کنیم تا
+        رابطه به SET NULL تغییر کند و سابقه حفظ شود.
+        """
+        table = self.fetch_one(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'modian_invoices';"
+        )
+        if table is None:
+            return
+
+        columns = {
+            row["name"]: dict(row)
+            for row in self.fetch_all("PRAGMA table_info(modian_invoices);")
+        }
+        invoice_id_col = columns.get("invoice_id")
+        if invoice_id_col is None:
+            return
+
+        fk = next(
+            (
+                dict(row)
+                for row in self.fetch_all("PRAGMA foreign_key_list(modian_invoices);")
+                if row["from"] == "invoice_id"
+            ),
+            None,
+        )
+        if invoice_id_col["notnull"] == 0 and fk and fk["on_delete"] == "SET NULL":
+            return
+
+        with self.transaction() as cur:
+            cur.execute("ALTER TABLE modian_invoices RENAME TO modian_invoices_legacy;")
+            cur.execute(MODIAN_INVOICES_DDL)
+            cur.execute(
+                """INSERT INTO modian_invoices
+                   (id, invoice_id, tax_id, uid, status, payload_json, prepared_at, sent_at)
+                   SELECT id, invoice_id, tax_id, uid, status, payload_json, prepared_at, sent_at
+                   FROM modian_invoices_legacy;"""
+            )
+            cur.execute("DROP TABLE modian_invoices_legacy;")
 
     # ---------------------------------------------------------------
     # هش کردن رمز عبور (PBKDF2-HMAC-SHA256 + Salt تصادفی)

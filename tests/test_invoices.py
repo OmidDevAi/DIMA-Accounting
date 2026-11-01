@@ -84,18 +84,19 @@ def test_delete_missing_invoice_raises(db):
         InvoiceModule().delete_invoice(999)
 
 
-@pytest.mark.xfail(
-    reason="known bug: deleting an invoice also deletes its prepared Modian record via ON DELETE CASCADE",
-    strict=False,
-)
 def test_modian_record_survives_invoice_deletion(db, admin, product):
-    invoice_id, _, _ = SalesModule().create_sale_invoice(
+    invoice_id, invoice_number, _ = SalesModule().create_sale_invoice(
         None, admin["id"], admin["box_id"], "cash", [_sale_item(product)]
     )
     ModianModule().save_as_ready(invoice_id)
+    record_id = db.fetch_one(
+        "SELECT id FROM modian_invoices WHERE invoice_id = ?;", (invoice_id,)
+    )["id"]
 
     InvoiceModule().delete_invoice(invoice_id)
 
-    assert db.fetch_one(
-        "SELECT COUNT(*) AS c FROM modian_invoices WHERE invoice_id = ?;", (invoice_id,)
-    )["c"] == 1
+    record = db.fetch_one("SELECT * FROM modian_invoices WHERE id = ?;", (record_id,))
+    assert record is not None
+    assert record["invoice_id"] is None  # سابقه حفظ می‌شود و از فاکتور حذف‌شده جدا می‌شود
+    assert record["status"] == "ready"
+    assert invoice_number in record["payload_json"]

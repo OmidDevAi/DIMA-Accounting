@@ -143,10 +143,6 @@ def test_modian_live_submission_is_not_implemented(db, admin, product):
         ModianModule().send_to_modian(invoice_id)
 
 
-@pytest.mark.xfail(
-    reason="known bug: Modian payload computes quantity as qty_num + qty_box and ignores units_per_box",
-    strict=False,
-)
 def test_modian_quantity_uses_base_units(db, admin, product):
     invoice_id, _, _ = _make_sale(db, admin, product, qty_num=3, qty_box=2)
     payload = ModianModule().prepare_invoice_payload(invoice_id)

@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue" alt="Windows 10 and 11">
   <img src="https://img.shields.io/badge/Python-3.13-blue" alt="Python 3.13">
   <img src="https://img.shields.io/badge/PyQt6-6.x-yellow" alt="PyQt6">
-  <img src="https://img.shields.io/badge/tests-76%20passed%20%2F%207%20xfailed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-84%20passed-brightgreen" alt="Tests">
 </p>
 
 <p align="center">
@@ -78,6 +78,7 @@ The screenshots above are generated from demo data — no real customer or busin
 - Invoice-level discount (amount or percent), line tax, and duty.
 - Payment by cash, card, or credit; cash and card receipts are recorded in the selected cash box.
 - Invoice history, search, and cancellation with stock and balance restoration.
+- Prepared Modian records are preserved as detached audit rows when an invoice is deleted.
 
 **Purchases**
 - Purchase invoices with numeric/box quantities, free (gift) units, and supplier selection.
@@ -182,10 +183,10 @@ pytest
 Current result on Windows with Python 3.13:
 
 ```text
-76 passed, 7 xfailed in ~20s
+84 passed in ~19s
 ```
 
-The seven `xfail` tests are intentional: each one reproduces a known defect listed under [known limitations](#known-limitations), so the suite stays green while the issue is documented. When a defect is fixed, its test will be marked `xpass` and can be promoted to a regular test.
+The suite also covers the historical defects that were fixed in this branch: invoice and journal-entry numbering after deletion, rejection of empty invoices, cost-of-goods-sold and VAT posting, Modian quantity in base units, and preservation of Modian records after invoice deletion. A migration test verifies that databases created by the 1.0.0 schema are upgraded automatically.
 
 The tests use isolated temporary databases and never touch your real data.
 
@@ -250,15 +251,10 @@ DIMA-Accounting/
 
 ## Known limitations
 
-These are confirmed behaviors in version 1.0.0, several of which are reproduced by `xfail` tests:
+These are confirmed behaviors in the current version:
 
 - **Modian submission is not live.** Records can be prepared and exported; sending to Modian is not implemented.
 - **SMS delivery depends on configuration.** Without a configured provider, messages are logged instead of sent.
-- **Sales postings do not split COGS or VAT.** The automatic journal entry records the receivable/cash and revenue legs only.
-- **Invoice numbering uses `COUNT(*) + 1`.** Deleting an invoice can cause a duplicate invoice number on the next sale.
-- **Journal entry numbering counts only the current day.** Backdated entries can collide on the entry number.
-- **Deleting an invoice is destructive.** Related treasury rows, journal entries, and the Modian record are removed.
-- **Modian quantity ignores units per box.** Numeric and box quantities are added without multiplying by the box size.
 - **Single-user local database.** There is no multi-user or client/server mode.
 
 ## Integration notes
@@ -283,7 +279,6 @@ Run `pytest` before opening a pull request and keep the suite green.
 
 ## Roadmap
 
-- Fix the defects documented by the `xfail` tests (invoice/entry numbering, COGS and VAT postings, Modian quantity).
 - Complete and test live Modian submission.
 - Document backup and restore procedures.
 - Improve translations and document supported languages.
