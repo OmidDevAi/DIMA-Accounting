@@ -85,7 +85,11 @@ class SaleCartWidget(QWidget):
         header = self.table.horizontalHeader()
         for col in range(self.table.columnCount() - 1):
             header.setSectionResizeMode(col, QHeaderView.ResizeMode.ResizeToContents)
-        header.setSectionResizeMode(self.table.columnCount() - 1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)
+        self.table.setColumnWidth(3, 185)
+        header.setSectionResizeMode(self.table.columnCount() - 1, QHeaderView.ResizeMode.ResizeToContents)
+        self.table.verticalHeader().setDefaultSectionSize(34)
         layout.addWidget(self.table)
 
         # ------------- تخفیف کل فاکتور -------------
