@@ -12,7 +12,7 @@ ui/accounting_page.py
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QTableWidget, QTableWidgetItem, QMessageBox, QComboBox, QDoubleSpinBox,
-    QFormLayout, QTabWidget, QDateEdit, QTextEdit
+    QFormLayout, QTabWidget, QDateEdit, QTextEdit, QHeaderView
 )
 from PyQt6.QtCore import Qt, QDate
 
@@ -60,7 +60,10 @@ class ChartOfAccountsTab(QWidget):
 
         self.table = QTableWidget()
         self.table.setColumnCount(3)
-        self.table.horizontalHeader().setStretchLastSection(True)
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
         layout.addWidget(self.table)
 
     def retranslate_ui(self):
