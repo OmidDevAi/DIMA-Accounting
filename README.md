@@ -287,7 +287,7 @@ These are possible improvements, not promises about current functionality.
 
 ## License
 
-No license has been specified in this repository yet. Until a license is added, do not assume that the code is open for reuse, redistribution, or commercial use.
+Released under the MIT License. See [LICENSE](LICENSE) for the full text.
 
 ---
 
